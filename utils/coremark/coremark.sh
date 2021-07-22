@@ -1,12 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
+echo -e "\nRunning CoreMark test,please wait ..."
 /bin/coremark > /tmp/coremark.log
 
-cat /tmp/coremark.log | grep "CoreMark 1.0" | cut -d  "/"  -f 1 > /etc/bench.log
-sed -i 's/CoreMark 1.0/(CpuMark/g'  /etc/bench.log
-echo " Scores)" >> /etc/bench.log
+Scores=$(cat /tmp/coremark.log 2> /dev/null | grep "CoreMark 1.0" | awk '{print $4}')
+Processer=$(awk -F ':[ ]' '/model name/{printf ($2);exit}' /proc/cpuinfo)
+Time=$(grep "Total time" /tmp/coremark.log | awk '{print $4}')
+[[ -z "${Processer}" ]] && Processer=Unknown
+
+echo -e "\nProcesser: ${Processer}\nScore: ${Scores}\nTime costs: ${Time}"
+echo "(CPU Mark: ${Scores} Scores)" > /etc/bench.log
 
 if [ -f "/etc/bench.log" ]; then
- sed -i '/coremark/d' /etc/crontabs/root
- crontab /etc/crontabs/root
+	sed -i '/coremark/d' /etc/crontabs/root
+	crontab /etc/crontabs/root
 fi
+
