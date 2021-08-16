@@ -7,20 +7,20 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=node
 
 ifeq ($(CONFIG_NODEJS_16),y)
-PKG_VERSION:=v16.5.0
+PKG_VERSION:=v16.6.2
 PKG_RELEASE:=1
-PKG_HASH:=3f37e38dd1129b6905f8d184616d41b3ab8433fa54cadce8a8c18b7a8bbcaa99
+PKG_HASH:=8794cba1f971e4200a38690c76d7cc0a3bd1cba96fbf4305dfbe21fc459d79eb
 PATCH_DIR:=./patches/v16.x
 else
 ifeq ($(CONFIG_NODEJS_14),y)
-PKG_VERSION:=v14.17.4
+PKG_VERSION:=v14.17.5
 PKG_RELEASE:=1
-PKG_HASH:=ae7bf4e784f8c8027ffa1e3757f37d2bd5925d0c48988c4d7f07e4515853cf2c
+PKG_HASH:=42b1a7ff87580c6058063e943d7d53efa8c236145e6e9c8264ee425b40911fa8
 PATCH_DIR:=./patches/v14.x
 else
-PKG_VERSION:=v12.22.3
+PKG_VERSION:=v12.22.5
 PKG_RELEASE:=1
-PKG_HASH:=350211fae3a688f41889680c8efcf689353a2e36b62b9dc2b408340986857190
+PKG_HASH:=f927ff6c2ac5a7234596031b18ba03febbcadd2650d375f1a3fd02426687fd14
 PATCH_DIR:=./patches/v12.x
 endif
 endif
@@ -53,7 +53,7 @@ define Package/node
   URL:=https://nodejs.org/
   DEPENDS:=@HAS_FPU @(i386||x86_64||arm||aarch64||mipsel) \
 	   +libstdcpp +libopenssl +zlib +libnghttp2 +libuv \
-	   +libcares +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
+	   +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
 endef
 
 define Package/node/description
@@ -148,7 +148,6 @@ CONFIGURE_ARGS:= \
 	--shared-openssl \
 	--shared-nghttp2 \
 	--shared-libuv \
-	--shared-cares \
 	--with-intl=$(if $(CONFIG_NODEJS_ICU_SMALL),small-icu,$(if $(CONFIG_NODEJS_ICU_SYSTEM),system-icu,none)) \
 	$(if $(findstring +neon,$(CONFIG_CPU_TYPE)),--with-arm-fpu=neon) \
 	$(if $(findstring +vfp",$(CONFIG_CPU_TYPE)),--with-arm-fpu=vfp) \
