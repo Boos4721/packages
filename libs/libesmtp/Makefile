@@ -19,10 +19,8 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://ftp.osuosl.org/pub/blfs/conglomeration/libesmtp
 PKG_HASH:=d0a61a5c52d99fa7ce7d00ed0a07e341dbda67101dbed1ab0cdae3f37db4eb0b
 
-PKG_BUILD_PARALLEL:=1
-PKG_INSTALL:=1
-
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/meson.mk
 
 define Package/libesmtp
   SECTION:=libs
