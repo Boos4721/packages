@@ -4,17 +4,17 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NPM_NAME:=express
+PKG_NPM_NAME:=homebridge-z2m
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=4.17.3
+PKG_VERSION:=1.7.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=2a5414ee2204cfb71d2cab0ade734d5e0af5b45919158e818c4b8683c272ec2b
+PKG_HASH:=aeb021f7080a452936712ba8b9609a6811dee88796e9e6aea6f72d1e301ed3e5
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
-PKG_LICENSE:=MIT
+PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_DEPENDS:=node/host
@@ -23,17 +23,17 @@ PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/node-express
+define Package/node-homebridge-z2m
   SUBMENU:=Node.js
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=Fast, unopinionated, minimalist web framework
-  URL:=https://www.npmjs.org/package/express
-  DEPENDS:=+node
+  TITLE:=Expose your Zigbee devices to HomeKit with ease
+  URL:=https://www.npmjs.com/package/homebridge-z2m
+  DEPENDS:=+node +node-homebridge +node-mqtt
 endef
 
-define Package/node-express/description
- Fast, unopinionated, minimalist web framework
+define Package/node-homebridge-z2m/description
+ Expose your Zigbee devices to HomeKit with ease, by integrating Zigbee2MQTT with Homebridge (via an MQTT message broker).
 endef
 
 TAR_OPTIONS+= --strip-components 1
@@ -56,25 +56,25 @@ define Build/Compile
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 	rm -f $(PKG_BUILD_DIR)/node_modules/.package-lock.json
-	find $(PKG_BUILD_DIR)/node_modules -type d -empty -delete || true
+	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 rmdir || true
 endef
 
-define Package/node-express/install
+define Package/node-homebridge-z2m/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
-	$(CP) $(PKG_BUILD_DIR)/{package.json,*.md} \
+	$(CP) $(PKG_BUILD_DIR)/{package.json,LICENSE} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_BUILD_DIR)/{LICENSE,*.js} \
+	$(CP) $(PKG_BUILD_DIR)/{*.md,config.schema.json} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_BUILD_DIR)/{node_modules,lib} \
+	$(CP) $(PKG_BUILD_DIR)/{node_modules,dist,exposes} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
 	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
 endef
 
-define Package/node-express/postrm
+define Package/node-homebridge-z2m/postrm
 #!/bin/sh
-rm /usr/lib/node_modules/express || true
-rm -rf /usr/lib/node/express || true
+rm /usr/lib/node_modules/homebridge-z2m || true
+rm -rf /usr/lib/node/homebridge-z2m || true
 endef
 
-$(eval $(call BuildPackage,node-express))
+$(eval $(call BuildPackage,node-homebridge-z2m))

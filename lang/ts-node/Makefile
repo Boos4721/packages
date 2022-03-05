@@ -4,18 +4,18 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NPM_NAME:=mqtt
-PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=4.3.6
+PKG_NPM_NAME:=ts-node
+PKG_NAME:=$(PKG_NPM_NAME)
+PKG_VERSION:=10.5.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=0d6ba599be00ec9060c2b94dbfbae7cfa3079cc156f8948f9fd3fe08d7272c04
+PKG_HASH:=ef11641d7f35640bb19b1aa6c7209cbe9faaff63056a654fdce47471a1f8d379
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
-PKG_LICENSE_FILES:=LICENSE.md
+PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_DEPENDS:=node/host
 PKG_BUILD_PARALLEL:=1
@@ -23,17 +23,18 @@ PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/node-mqtt
+define Package/ts-node
   SUBMENU:=Node.js
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=A library for the MQTT protocol
-  URL:=https://www.npmjs.org/package/mqtt
-  DEPENDS:=+node +node-ws
+  TITLE:=TypeScript execution environment and REPL for node.js
+  URL:=https://typestrong.org/ts-node/
+  DEPENDS:=+node +node-npm
 endef
 
-define Package/node-mqtt/description
- MQTT.js is a client library for the MQTT protocol, written in JavaScript for node.js and the browser
+define Package/ts-node/description
+ ts-node is a TypeScript execution engine and REPL for Node.js.
+ It JIT transforms TypeScript into JavaScript, enabling you to directly execute TypeScript on Node.js without precompiling. This is accomplished by hooking node's module loading APIs, enabling it to be used seamlessly alongside other Node.js tools and libraries.
 endef
 
 TAR_OPTIONS+= --strip-components 1
@@ -59,29 +60,28 @@ define Build/Compile
 	find $(PKG_BUILD_DIR)/node_modules -type d -empty -delete || true
 endef
 
-define Package/node-mqtt/install
+define Package/ts-node/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
-	$(CP) $(PKG_BUILD_DIR)/{package.json,*.md,*.js} \
+	$(CP) $(PKG_BUILD_DIR)/{package.json,LICENSE,*.md,esm.mjs,tsconfig.*.json} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_BUILD_DIR)/{node_modules,lib} \
+	$(CP) $(PKG_BUILD_DIR)/{node_modules,transpilers,dist,dist-raw} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_BUILD_DIR)/{bin,dist,doc} \
+	$(CP) $(PKG_BUILD_DIR)/{register,esm,node12,node14,node16} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/mqtt.js $(1)/usr/bin/mqtt
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/pub.js $(1)/usr/bin/mqtt_pub
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/sub.js $(1)/usr/bin/mqtt_sub
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/dist/bin.js $(1)/usr/bin/ts-node
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/dist/bin-script-deprecated.js $(1)/usr/bin/ts-script
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/dist/bin-script.js $(1)/usr/bin/ts-node-script
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/dist/bin-cwd.js $(1)/usr/bin/ts-node-cwd
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/dist/bin-transpile.js $(1)/usr/bin/ts-node-transpile-only
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
 	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
-	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/mqtt.js
-	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/bin/pub.js
-	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/bin/sub.js
 endef
 
-define Package/node-mqtt/postrm
+define Package/ts-node/postrm
 #!/bin/sh
-rm /usr/lib/node_modules/mqtt || true
-rm -rf /usr/lib/node/mqtt || true
+rm /usr/lib/node_modules/ts-node || true
+rm -rf /usr/lib/node/ts-node || true
 endef
 
-$(eval $(call BuildPackage,node-mqtt))
+$(eval $(call BuildPackage,ts-node))

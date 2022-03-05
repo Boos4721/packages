@@ -4,18 +4,18 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NPM_NAME:=typescript
+PKG_NPM_NAME:=clean-modules
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=4.6.2
+PKG_VERSION:=2.0.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=30afe4c71ff164ba41560e0770e0f8c48f9c03959cbcdcc7c410ab052bf2f6d6
+PKG_HASH:=2cd1d58d22c2c50a1601239736f0b60a50ab8c91a5bd82197e1f3a8fa7e2bad5
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
-PKG_LICENSE:=Apache-2.0
-PKG_LICENSE_FILES:=LICENSE.txt
+PKG_LICENSE:=ISC
+PKG_LICENSE_FILES:=LICENSE
 
 HOST_BUILD_DEPENDS:=node/host
 HOST_BUILD_PARALLEL:=1
@@ -27,17 +27,17 @@ PKG_USE_MIPS16:=0
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
 
-define Package/node-typescript
+define Package/node-clean-modules
   SUBMENU:=Node.js
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=A language for application-scale JavaScript
-  URL:=https://www.typescriptlang.org/
+  TITLE:=Clean up/prune unnecessary files
+  URL:=https://www.npmjs.org/package/clean-modules
   DEPENDS:=+node
 endef
 
-define Package/node-typescript/description
- TypeScript is a language for application-scale JavaScript. TypeScript adds optional types, classes, and modules to JavaScript. TypeScript supports tools for large-scale JavaScript applications for any browser, for any host, on any OS. TypeScript compiles to readable, standards-based JavaScript.
+define Package/node-clean-modules/description
+ Clean up/prune unnecessary files and reduce the size of your node_modules directory. Useful for CI caches or for reducing the size of your AWS Lambdas/Azure Functions.
 endef
 
 TAR_OPTIONS+= --strip-components 1
@@ -64,23 +64,24 @@ define Build/Compile
 	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 rmdir || true
 endef
 
-define Package/node-typescript/install
+define Package/node-clean-modules/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
-	$(CP) $(PKG_BUILD_DIR)/{package.json,*.txt,*.md} \
+	$(CP) $(PKG_BUILD_DIR)/{package.json,LICENSE} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_BUILD_DIR)/{bin,lib} \
+	$(CP) $(PKG_BUILD_DIR)/{README.md,.cleanmodules-default} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_BUILD_DIR)/{node_modules,bin,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/tsc $(1)/usr/bin/tsc
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/tsserver $(1)/usr/bin/tsserver
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/cli.js $(1)/usr/bin/clean-modules
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
 	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
 endef
 
-define Package/node-typescript/postrm
+define Package/node-clean-modules/postrm
 #!/bin/sh
-rm /usr/lib/node_modules/typescript || true
-rm -rf /usr/lib/node/typescript || true
+rm /usr/lib/node_modules/clean-modules || true
+rm -rf /usr/lib/node/clean-modules || true
 endef
 
 define Host/Compile
@@ -98,14 +99,15 @@ endef
 
 define Host/Install
 	$(INSTALL_DIR) $(1)/lib/node_modules/$(PKG_NPM_NAME)
-	$(CP) $(HOST_BUILD_DIR)/{package.json,*.txt,*.md} \
+	$(CP) $(HOST_BUILD_DIR)/{package.json,LICENSE} \
 		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
-	$(CP) $(HOST_BUILD_DIR)/{bin,lib} \
+	$(CP) $(HOST_BUILD_DIR)/{README.md,.cleanmodules-default} \
+		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
+	$(CP) $(HOST_BUILD_DIR)/{node_modules,bin,lib} \
 		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/bin
-	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/tsc $(1)/bin/tsc
-	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/tsserver $(1)/bin/tsserver
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/cli.js $(1)/bin/clean-modules
 endef
 
 $(eval $(call HostBuild))
-$(eval $(call BuildPackage,node-typescript))
+$(eval $(call BuildPackage,node-clean-modules))
