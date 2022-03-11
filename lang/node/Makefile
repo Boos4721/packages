@@ -12,6 +12,12 @@ PKG_RELEASE:=1
 PKG_HASH:=05eb64193e391fa8a2c159c0f60c171824715165f80c67fcab9dbc944e30c623
 PATCH_DIR:=./patches/v16.x
 else
+ifeq ($(CONFIG_NODEJS_10),y)
+PKG_VERSION:=v10.24.1
+PKG_RELEASE:=3
+PKG_HASH:=d72fc2c244603b4668da94081dc4d6067d467fdfa026e06a274012f16600480c
+PATCH_DIR:=./patches/v10.x
+else
 ifeq ($(CONFIG_NODEJS_14),y)
 PKG_VERSION:=v14.19.0
 PKG_RELEASE:=1
@@ -22,6 +28,7 @@ PKG_VERSION:=v12.22.10
 PKG_RELEASE:=1
 PKG_HASH:=ad4c8891d54a2c9bb6af436956deead5986b9698b06e6c6d616de429cfb5393a
 PATCH_DIR:=./patches/v12.x
+endif
 endif
 endif
 
@@ -95,9 +102,11 @@ define Package/node/config
 			bool "12.x Maintenance LTS"
 
 		config NODEJS_14
+			depends on !(mips||mipsel||mips64||mips64el)
 			bool "14.x Maintenance LTS"
 
 		config NODEJS_16
+			depends on !(mips||mipsel||mips64||mips64el)
 			bool "16.x Active LTS"
 	endchoice
 
