@@ -31,7 +31,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/netdata
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c +liblz4
+  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c
   TITLE:=Real-time performance monitoring tool
   URL:=https://www.netdata.cloud/
 endef
@@ -57,6 +57,7 @@ CONFIGURE_ARGS += \
 	--without-libcap \
 	--disable-https \
 	--disable-dbengine \
+	--disable-compression \
 	--disable-plugin-nfacct \
 	--disable-plugin-freeipmi \
 	--disable-plugin-cups \
