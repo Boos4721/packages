@@ -51,22 +51,11 @@ define Package/miniupnpd-iptables
   VARIANT:=iptables
 endef
 
-define Package/miniupnpd-nftables
-  $(call Package/miniupnpd/Default)
-  DEPENDS+= \
-	+libnftnl
-  TITLE+= (nftables)
-  VARIANT:=nftables
-  DEFAULT_VARIANT:=1
-  CONFLICTS:=miniupnpd-iptables
-endef
-
 define Package/miniupnpd/conffiles/Default
 /etc/config/upnpd
 endef
 
 Package/miniupnpd-iptables/conffiles = $(Package/miniupnpd/conffiles/Default)
-Package/miniupnpd-nftables/conffiles = $(Package/miniupnpd/conffiles/Default)
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
@@ -112,4 +101,3 @@ define Package/miniupnpd-nftables/install
 endef
 
 $(eval $(call BuildPackage,miniupnpd-iptables))
-$(eval $(call BuildPackage,miniupnpd-nftables))
