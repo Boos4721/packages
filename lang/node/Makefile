@@ -12,6 +12,12 @@ PKG_RELEASE:=1
 PKG_HASH:=a0f812efc43f78321eca08957960a48f5e6bf97004d5058c8dd3b03c646ea4f7
 PATCH_DIR:=./patches/v16.x
 else
+ifeq ($(CONFIG_NODEJS_16),y)
+PKG_VERSION:=v16.14.2
+PKG_RELEASE:=1
+PKG_HASH:=e922e215cc68eb5f94d33e8a0b61e2c863b7731cc8600ab955d3822da90ff8d1
+PATCH_DIR:=./patches/v16.x
+else
 ifeq ($(CONFIG_NODEJS_14),y)
 PKG_VERSION:=v14.19.1
 PKG_RELEASE:=1
@@ -22,6 +28,7 @@ PKG_VERSION:=v12.22.12
 PKG_RELEASE:=1
 PKG_HASH:=bc42b7f8495b9bfc7f7850dd180bb02a5bdf139cc232b8c6f02a6967e20714f2
 PATCH_DIR:=./patches/v12.x
+endif
 endif
 endif
 
@@ -95,9 +102,11 @@ define Package/node/config
 			bool "12.x Maintenance LTS"
 
 		config NODEJS_14
+			depends on !(mips||mipsel||mips64||mips64el)
 			bool "14.x Maintenance LTS"
 
 		config NODEJS_16
+			depends on !(mips||mipsel||mips64||mips64el)
 			bool "16.x Active LTS"
 	endchoice
 
@@ -172,6 +181,7 @@ define Package/node/install
 endef
 
 define Package/node-npm/install
+	$(RM) $(1)/usr/lib/node_modules/npm
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules/npm
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/npm/{package.json,LICENSE} \
 		$(1)/usr/lib/node_modules/npm/
