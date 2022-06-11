@@ -81,9 +81,8 @@ endef
 define Package/coremark/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/coremark $(1)/bin/
-	$(INSTALL_BIN) ./coremark.sh $(1)/etc/
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./coremark.sh $(1)/etc/
 endef
 
 define Package/coremark/postinst
