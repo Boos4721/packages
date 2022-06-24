@@ -12,6 +12,12 @@ PKG_RELEASE:=1
 PKG_HASH:=a0f812efc43f78321eca08957960a48f5e6bf97004d5058c8dd3b03c646ea4f7
 PATCH_DIR:=./patches/v16.x
 else
+ifeq ($(CONFIG_NODEJS_18),y)
+PKG_VERSION:=v18.4.0
+PKG_RELEASE:=1
+PKG_HASH:=94d6f19a970361f8c8ad17450604095389f51ca6a00dcde59c21f373e95abbb5
+PATCH_DIR:=./patches/v18.x
+else
 ifeq ($(CONFIG_NODEJS_16),y)
 PKG_VERSION:=v16.15.1
 PKG_RELEASE:=1
@@ -28,6 +34,7 @@ PKG_VERSION:=v12.22.12
 PKG_RELEASE:=1
 PKG_HASH:=bc42b7f8495b9bfc7f7850dd180bb02a5bdf139cc232b8c6f02a6967e20714f2
 PATCH_DIR:=./patches/v12.x
+endif
 endif
 endif
 endif
@@ -58,9 +65,9 @@ define Package/node
   SUBMENU:=Node.js
   TITLE:=Node.js is a platform built on Chrome's JavaScript runtime
   URL:=https://nodejs.org/
-  DEPENDS:=@HAS_FPU @(i386||x86_64||arm||aarch64||mipsel) \
-	   +libstdcpp +libopenssl +zlib +libnghttp2 +libuv \
-	   +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
+  DEPENDS:=@(HAS_FPU||KERNEL_MIPS_FPU_EMULATOR||SOFT_FLOAT) @!arc @!armeb @!powerpc \
+	   +libstdcpp +libopenssl +zlib +libnghttp2 \
+	   +libcares +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
 endef
 
 define Package/node/description
@@ -108,6 +115,10 @@ define Package/node/config
 		config NODEJS_16
 			depends on !(mips||mipsel||mips64||mips64el)
 			bool "16.x Active LTS"
+
+		config NODEJS_18
+			depends on !(mips||mipsel||mips64||mips64el)
+			bool "18.x Current"
 	endchoice
 
 	choice
@@ -157,7 +168,7 @@ CONFIGURE_ARGS:= \
 	--shared-zlib \
 	--shared-openssl \
 	--shared-nghttp2 \
-	--shared-libuv \
+	--shared-cares \
 	--with-intl=$(if $(CONFIG_NODEJS_ICU_SMALL),small-icu,$(if $(CONFIG_NODEJS_ICU_SYSTEM),system-icu,none)) \
 	$(if $(findstring +neon,$(CONFIG_CPU_TYPE)),--with-arm-fpu=neon) \
 	$(if $(findstring +vfp",$(CONFIG_CPU_TYPE)),--with-arm-fpu=vfp) \
